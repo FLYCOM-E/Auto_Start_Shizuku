@@ -1,3 +1,4 @@
+#!/system/bin/sh
 MODDIR=${0%/*}
 cd "$MODDIR"
 exec 2>>"$MODDIR/LOG.log"
