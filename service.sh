@@ -6,24 +6,14 @@ exec 2>>"$MODDIR/LOG.log"
 # Start Time
 echo "<$(date)> ReStart" > "$MODDIR/LOG.log"
 
-# Print log
-RunError="AutoShizuku Server Error: Service Run error. Please Cat the Log"
-PackageError="AutoShizuku Server Error: Shizuku not find. Please Cat the Log"
-RunOk="AutoShizuku Server: Shizuku is Run"
-
 # Wait boot=1
 while true; do
-    if [ -d "/storage/emulated/0/Android/data" ]; then
-        break
-    fi
+    [ -d "/storage/emulated/0/Android/data" ] && break
 sleep 5
 done
 
 # Off SELinux
-if [ "$(getenforce)" = "Enforcing" ]; then
-    setenforce 0
-    OffSelinux=1
-fi
+[ "$(getenforce)" = "Enforcing" ] && setenforce 0 && OffSelinux=1
 
 # Server
 if $(pm list package -3 | grep moe.shizuku.privileged.api >>/dev/null); then
@@ -35,21 +25,15 @@ if $(pm list package -3 | grep moe.shizuku.privileged.api >>/dev/null); then
     # Run Shizuku
     if [ -d "$path" ]; then
         if $("$path/lib/$abi/libshizuku.so" >>/dev/null); then
-            echo "$RunOk" > "$MODDIR/LOG.log"
-            log -p I "$RunOk"
+            echo "AutoShizuku Server: Shizuku is Run." > "$MODDIR/LOG.log"
         fi
     else
-        echo "$RunError" > "$MODDIR/LOG.log"
-        log -p E "$RunError"
+        echo "AutoShizuku Server: Shizuku PATH not find. Version Not Ok? " > "$MODDIR/LOG.log"
     fi
 else
     # No Install Shizuku
-    echo "$PackageError" > "$MODDIR/LOG.log"
-    log -p E "$PackageError"
+    echo "AutoShizuku Server: Shizuku not Install. Please Install the Shizuku." > "$MODDIR/LOG.log"
 fi
 
 # Reset SELinux
-if [ "$OffSelinux" = 1 ]; then
-    setenforce 1
-fi
-
+[ "$OffSelinux" = 1 ] && setenforce 1
